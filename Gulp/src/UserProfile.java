@@ -65,11 +65,14 @@ public class UserProfile extends HttpServlet {
 			try {
 				updateDB(sql);
 				
-				sql = "select res_name, rating from restaurant";
+				sql = "select AVG(rating) as average from restaurant where res_name='Cheesecake Factory'";
+				
+				// select AVG(rating) as average from restaurant where res_name='Cheesecake Factory';
+				//select AVG(rating) as average from restaurant where res_name in (select distinct res_name from restaurant;
 				
 				System.out.println(sql);
-							
 				ResultSet result = getFromDB(sql);
+				
 				message += " <table class= \"table\"><thead><tr><th>Restaurant Name</th><th>Rating</th><th></th></tr></thead><tbody>";
 					
 				while (result.next()) {
