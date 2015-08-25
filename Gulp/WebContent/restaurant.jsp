@@ -30,8 +30,30 @@
 </head>
 <body>
 
+<div> 	${message1}
+</div>
 
-	${message}
+<div>
+	${message2}
+</div>
+<form role="form"  action="login.jsp" >
+<div class="col-lg-6">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-lg" name = "logout" type="submit">Logout</button>
 
+				</span>
+			</div>
+</div></form>
+
+<form role="form"  action="UserProfile" method="get">
+<div class="col-lg-6">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-lg" style=margin-top:20 name = "Profile" type="submit">Profile</button>
+
+				</span>
+			</div>
+</div></form>
 </body>
 </html>

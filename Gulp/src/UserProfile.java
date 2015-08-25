@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,68 +34,118 @@ public class UserProfile extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("in get");
-		doPost(request, response);
+		try {
+			HttpSession session = request.getSession();
+
+			String sql = "select user_id from userprofile where " + " email="
+					+ "\'" + session.getAttribute("name") + "\'";
+
+			ResultSet result = getFromDB(sql);
+			String usr_id = "";
+			if (result.next()) {
+				usr_id = result.getString("user_id");
+			}
+			String line = "";
+			
+				String sql_new = "select restaurant.res_name as name, restaurant.review as review, restaurant.rating as rate, userprofile.user_name as usr_name,"
+						+ "restaurant.DATE_REVIEW as dateIn from restaurant , userprofile"
+						+ " where restaurant.user_id = userprofile.user_id"
+						+ " and userprofile.user_id= "
+						+ "\'"
+						+ usr_id
+						+ "\'"
+						+ " order by restaurant.DATE_REVIEW DESC";
+				System.out.println(sql);
+				System.out.println(sql_new);
+				ResultSet res = getFromDB(sql_new);
+				line += "<h2> Profile: Reviews Written </h2>";
+				
+				line += "<table class=" + "\"table table-striped\""
+						+ "style=width:60%>";
+
+				line += "<tr>" + "<th>" + "Restaurant Name" + "</th> <br>"
+						+ "<th>" + "Date of Review" + "</th><br>" + "<th>"
+						+ "Review" + "</th><br>" + "<th>" + "Ratings"
+						+ "</th><br>" + "</tr>";
+				// line +=
+				// " <table class= \"table\"><thead><tr><th>Restaurant Name</th><th>Rating</th><th></th></tr></thead><tbody>";
+
+				while (res.next()) {
+			
+					 
+					line += "<tr>" + "<td>" + res.getString("name") + "</td>"
+							+ "<td>" + res.getString("dateIn") + "</td>"
+							+ "<td>" + res.getString("review") + "</td>"
+							+ "<td>" + res.getString("rate") + "</td>"
+							+ "</tr>";
+
+				}
+
+				line += "</tbody></table></div>";
+			
+
+			request.setAttribute("message2", line);
+
+			getServletContext().getRequestDispatcher("/restaurant.jsp")
+					.forward(request, response);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		
+		// create session id
+		try {
+		HttpSession mySession = request.getSession();
+		
 		String message = "";
-		String name = "";
-		String email = "";
-		String zipcode = "";
-		name = request.getParameter("name");
-		email = request.getParameter("email");
-		zipcode = request.getParameter("email");
+		String name = request.getParameter("name");
+		String email = request.getParameter("email");
+		String zipcode = request.getParameter("zipcode");
+		String pwd = request.getParameter("password");
 		String button = request.getParameter("button");
 		
-		System.out.println("$$$$$$$$" + button);
-		// System.out.println(button);
 		if (button == null) {
 			
 		} else {
 			
-			String sql = " insert into userprofile(user_name, email, zipcode, user_id) values("
+			String sql = " insert into userprofile(user_name, email, zipcode, pwd, user_id) values("
 						+ "\'" + name + "\'"  + ","
 						+ "\'" + email + "\'" + ","
 						+ "\'" + zipcode + "\'" + ","
+						+ "\'" + pwd + "\'"  + ","
 						+ "user_id_seq.nextval" 
 						+")"
 						;
+			// insert the values for new user.
+			System.out.println(sql);
 			
-			try {
+			
 				updateDB(sql);
-				
-				sql = "select AVG(rating) as average from restaurant where res_name='Cheesecake Factory'";
-				
-				// select AVG(rating) as average from restaurant where res_name='Cheesecake Factory';
-				//select AVG(rating) as average from restaurant where res_name in (select distinct res_name from restaurant;
-				
-				System.out.println(sql);
-				ResultSet result = getFromDB(sql);
-				
-				message += " <table class= \"table\"><thead><tr><th>Restaurant Name</th><th>Rating</th><th></th></tr></thead><tbody>";
-					
-				while (result.next()) {
-						String res_name = result.getString("res_name");
-						String rating = result.getString("rating");
-						System.out.println(res_name);
-						message += "<tr><td>" + "<a href=" + res_name + ">" + res_name + "</a>" + "</td><td>" + rating
-								+ "</td><td>";
-					}
-				
-				message += "</tbody></table></div>";
-				request.setAttribute("message", message);
-				
-				getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
-						request, response);
+				String message1 = "Welcome, "+name;  
+                HttpSession session=request.getSession(true);  
+                session.setAttribute("name",name);  
+                
+                String message2 = "<a href" + "=" + "\"Restaurant?name=" + session.getAttribute("name") + "\"" + ">"+  "List of restaurants" + "</a>" ;
+                request.setAttribute("message1", message1);
+                request.setAttribute("message2", message2);
+                
+                getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
+    					request, response);
+               
+		}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		
 		}
-	}
+	
 
 	public void destroy() {
 		// do nothing.

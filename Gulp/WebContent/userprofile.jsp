@@ -46,6 +46,10 @@
 				<br>
 				<input type="text" class="form-control" name = "zipcode" placeholder="Zipcode">
 				<br>
+				 <div class="form-group" style="width:30%">
+            <label for="inputPassword">Password</label>
+            <input type="password" class="form-control" name = "password"  placeholder="Password">
+        </div>
 				<p></p>
 				<span class="input-group-btn">
 					<button class="btn btn-default" name = "button" type="submit">Submit</button>

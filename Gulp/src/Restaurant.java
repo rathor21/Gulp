@@ -1,6 +1,8 @@
 
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,6 +15,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Servlet implementation class Restaurant1
@@ -31,46 +34,98 @@ public class Restaurant extends HttpServlet {
     }
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
+		if(!request.getParameter("name").isEmpty()){
+	
+		
+		request.setAttribute("message2", getRestaurants());
+		
+		getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
+				request, response);
+	
+		}
 		doPost(request, response);
 		
 	}
 
 	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public String  getRestaurants() {
 		
-		String message = "";
-		String res_name = "";
-		String rating = "";
+		String message= "";
 		
-		
-		ResultSet result;
-		String sql = "select res_name, rating from restaurant";
-				
-		System.out.println(sql);
-		
-		try {
-			result = getFromDB(sql);
-			message += " <table class= \"table\"><thead><tr><th>Restaurant Name</th><th>Rating</th><th></th></tr></thead><tbody>";
+		try{
+    		String sql = "select res_name, ROUND(AVG(CAST(rating AS FLOAT)), 2) as Average from restaurant group by res_name order by Average DESC"; 
+ 
+    				     
+    		
+    		ResultSet res_result = getFromDB(sql);
 			
-			while (result.next()) {
-				res_name = result.getString("res_name");
-				rating = result.getString("rating");
-				
-				message += "<tr><td>" + "<a href=" + "\"" + "restList" + "\"" + res_name + "</td><td>" + rating
-						+ "</td><td>";
-			}
-	
-		}catch(Exception e){
-			System.out.println(e.getMessage());
-		}
-		message += "</tr>";
-		
-		request.setAttribute("message", message);
-		getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
-				request, response);
-		
-	}
+			message = " <table class= \"table\"><thead><tr><th>Restaurant Name</th><th>Rating</th><th></th></tr></thead><tbody>";
+			String res_name="";
 
+			while (res_result.next()) {
+					res_name = res_result.getString("res_name");
+					System.out.println("in result " + res_name);
+					String rating = res_result.getString("Average");
+					message += "<tr><td>" + "<a href=restList?res_name=" + URLEncoder.encode(res_name, "UTF-8") + ">" + res_name + "</a>" + "</td><td>" + rating
+							+ "</td><td>";
+				}
+			
+			message += "</tbody></table></div>";
+			return message;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return message;
+	}
+	
+		
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+				
+		String message = "";
+		String message2 = "";
+		String email=request.getParameter("inputEmail");  
+		String password=request.getParameter("inputPassword");  
+		         
+		try {      
+		        String sql = "select * from userprofile where "
+		        			+ " email=" + "\'" + email + "\'" + " and "
+		        			+ " pwd= " + "\'" + password + "\'" 
+		        			;
+		    
+		        ResultSet result;
+				result = getFromDB(sql);
+					if(result.next()){
+		        	if(password.equals(result.getString("pwd"))){
+		        		message += "Welcome, "+email;  
+		                HttpSession session=request.getSession(true);  
+		                session.setAttribute("name",email);  
+		                message2= getRestaurants();
+		                request.setAttribute("message1", message);
+		                request.setAttribute("message2", message2);
+		             }
+
+					}else{  
+		                message +="Sorry, username or password error! Click logout to return";    
+		                request.setAttribute("message2", message);
+		                System.out.println("in else" + message);
+		            }   
+					getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
+							request, response);
+		        	
+		        
+		        
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+        	}
+    		
 	public static void openConnection() {
 
 		try {
