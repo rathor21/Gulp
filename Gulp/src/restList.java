@@ -85,11 +85,11 @@ public class restList extends HttpServlet {
 			session.setAttribute("add " + res_name, result.getString("address"));
 			session.setAttribute("desc  " + res_name, result.getString("description"));
 			
-			message += "<div> REVIEWS  ";
+			message += "<div> ";
 			
-			message += "<a href=" + "\"" + "writeReview.jsp" + "\"" + ">  WriteReview </a></div>";
+			message += "<a href=" + "\"" + "writeReview.jsp" + "\"" + ">  Write Review </a></div>";
 			
-			
+			message += "<a href=" + "\"" + "editReview.jsp" + "\"" + ">  Edit Review </a></div>";
 			line += "<tr>" 
 				  +"<td>" + result.getString("usr_name") + "</td>"
 				  + "<td>" +result.getString("dateIn") + "</td>"
@@ -102,72 +102,85 @@ public class restList extends HttpServlet {
 		System.out.println(message);
 		line += "</table>";
 		
-	    //line+= "<br><form action=GradeEntry method=post><input type=submit value=dispAvg name=dispAvg ></form>";
-		
 		request.setAttribute("message1", message);
 		request.setAttribute("message2", line);
 		getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
 				request, response);
 		
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 			}
 
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		System.out.println("in post");
-		String usr_id = "";
 		try {
-		String review = request.getParameter("review");
-		String rating = request.getParameter("rating");
-		HttpSession session = request.getSession();
-		
-		
-		DateFormat dateFormat = new SimpleDateFormat("MM/DD/YYYY");
-		//Date date = Calendar.getInstance().getTime();
-		Date date = new Date();
-		System.out.println(dateFormat.format(date));
-		
-		String sql = "select user_id from userprofile where email= " + "\'" + session.getAttribute("name") +"\'";
-		System.out.println(sql + "   session name");
-			
-		ResultSet result = getFromDB(sql);
+			String usr_id = "";
+			String review = request.getParameter("review");
+			String rating = request.getParameter("rating");
+			HttpSession session = request.getSession();
 
-		while(result.next()){
-			usr_id = result.getString("user_id");
-		}
-		
-		if (CheckReview(usr_id, session.getAttribute("res_name").toString()) == true) {
-			String line = "review already present for this restaurant cannot add review";
-			
-			request.setAttribute("message1", line);
-		} 
-		
-		else{
-		String res_name = session.getAttribute("res_name").toString();
-		String address = "add " +res_name;
-		String desc = "desc " +res_name;
-		
-		String sql_new = "insert into restaurant (RES_NAME, Date_REVIEW, REVIEW, RATING, user_id, address, description) values("
-				+ "\'" + res_name + "\'" + ","
-				+ "\'" + dateFormat.format(date) + "\'" + ","
-				+ "\'" + review + "\'" + ","
-				+ "\'" + rating + "\'" + ","
-				+ "\'" + usr_id + "\'" 
-				+ "\'" + session.getAttribute(address).toString() + "\'" 
-				+ "\'" + session.getAttribute(desc).toString() + "\'" 
-				+ ")"
-				;
-		
-		System.out.println(sql_new);
-		updateDB(sql_new);
-		request.setAttribute("message1", "added Successfully!!");
+			DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+			Date date = new Date();
+			System.out.println(dateFormat.format(date));
+
+			String sql = "select user_id from userprofile where email= " + "\'"
+					+ session.getAttribute("name") + "\'";
+			System.out.println(sql + "   session name");
+
+			ResultSet result = getFromDB(sql);
+
+			while (result.next()) {
+				usr_id = result.getString("user_id");
 			}
-		getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
-				request, response);
+
+			if (CheckReview(usr_id, session.getAttribute("res_name").toString()) == true) {
+				String line = "review already present for this restaurant cannot add review";
+
+				request.setAttribute("message1", line);
+			}
+
+			else {
+				String res_name = session.getAttribute("res_name").toString();
+				String address = "add " + res_name;
+				String desc = "desc  " + res_name;
+
+				String sql_new = "insert into restaurant (RES_NAME, Date_REVIEW, REVIEW, RATING, user_id, address, description) values("
+						+ "\'"
+						+ res_name
+						+ "\'"
+						+ ","
+						+ "\'"
+						+ dateFormat.format(date)
+						+ "\'"
+						+ ","
+						+ "\'"
+						+ review
+						+ "\'"
+						+ ","
+						+ "\'"
+						+ rating
+						+ "\'"
+						+ ","
+						+ "\'"
+						+ usr_id
+						+ "\'"
+						+ ","
+						+ "\'"
+						+ session.getAttribute(address).toString()
+						+ "\'"
+						+ ","
+						+ "\'"
+						+ session.getAttribute(desc).toString()
+						+ "\'"
+						+ ")";
+
+				updateDB(sql_new);
+				request.setAttribute("message1", "added Successfully!!");
+			}
+			getServletContext().getRequestDispatcher("/restaurant.jsp")
+					.forward(request, response);
 		}
 		catch (SQLException e) {
 		
@@ -198,10 +211,8 @@ public class restList extends HttpServlet {
 			if (res.next()) {
 				check = true;
 			}
-			
-
+	
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return check;
@@ -219,11 +230,9 @@ public class restList extends HttpServlet {
 			props.setProperty("password", "password");
 			conn = DriverManager.getConnection(url, props);
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -234,6 +243,7 @@ public class restList extends HttpServlet {
 
 		preStatement.setQueryTimeout(10);
 		preStatement.executeUpdate();
+		conn.commit();
 
 	}
 

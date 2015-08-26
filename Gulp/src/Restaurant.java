@@ -34,6 +34,7 @@ public class Restaurant extends HttpServlet {
     }
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
+		
 		if(!request.getParameter("name").isEmpty()){
 	
 		
@@ -43,12 +44,59 @@ public class Restaurant extends HttpServlet {
 				request, response);
 	
 		}
+		
 		doPost(request, response);
 		
 	}
 
 	
-	public String  getRestaurants() {
+	
+		
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+				
+		String message = "";
+		String message2 = "";
+		String email=request.getParameter("inputEmail");  
+		String password=request.getParameter("inputPassword");  
+		         
+		try {      
+		        String sql = "select * from userprofile where "
+		        			+ " email=" + "\'" + email + "\'" + " and "
+		        			+ " pwd= " + "\'" + password + "\'" 
+		        			;
+		    
+		        ResultSet result;
+				result = getFromDB(sql);
+					if(result.next()){
+		        	if(password.equals(result.getString("pwd"))){
+		        		message += "Welcome, "+ result.getString("USER_NAME");  
+		                HttpSession session=request.getSession(true);  
+		                session.setAttribute("name",email);  
+		                message2= getRestaurants();   
+		                request.setAttribute("message1", message);
+		                request.setAttribute("message2", message2);
+		              
+		             }
+
+					}else{  
+		                message +="Sorry, username or password error! Click logout to return";    
+		                request.setAttribute("message2", message);
+		                System.out.println("in else" + message);
+		            }   
+					getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
+							request, response);
+		        	
+		        
+		        
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+        	}
+	
+	
+public String  getRestaurants() {
 		
 		String message= "";
 		
@@ -83,48 +131,6 @@ public class Restaurant extends HttpServlet {
 		return message;
 	}
 	
-		
-	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-				
-		String message = "";
-		String message2 = "";
-		String email=request.getParameter("inputEmail");  
-		String password=request.getParameter("inputPassword");  
-		         
-		try {      
-		        String sql = "select * from userprofile where "
-		        			+ " email=" + "\'" + email + "\'" + " and "
-		        			+ " pwd= " + "\'" + password + "\'" 
-		        			;
-		    
-		        ResultSet result;
-				result = getFromDB(sql);
-					if(result.next()){
-		        	if(password.equals(result.getString("pwd"))){
-		        		message += "Welcome, "+email;  
-		                HttpSession session=request.getSession(true);  
-		                session.setAttribute("name",email);  
-		                message2= getRestaurants();
-		                request.setAttribute("message1", message);
-		                request.setAttribute("message2", message2);
-		             }
-
-					}else{  
-		                message +="Sorry, username or password error! Click logout to return";    
-		                request.setAttribute("message2", message);
-		                System.out.println("in else" + message);
-		            }   
-					getServletContext().getRequestDispatcher("/restaurant.jsp").forward(
-							request, response);
-		        	
-		        
-		        
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-        	}
     		
 	public static void openConnection() {
 
@@ -151,6 +157,7 @@ public class Restaurant extends HttpServlet {
 
 		preStatement.setQueryTimeout(10);
 		preStatement.executeUpdate();
+		conn.commit();
 
 	}
 

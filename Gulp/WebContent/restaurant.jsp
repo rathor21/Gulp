@@ -27,6 +27,7 @@
 
 
 <title>Res List</title>
+
 </head>
 <body>
 
@@ -54,6 +55,41 @@
 
 				</span>
 			</div>
-</div></form>
+</div>
+</form>
+
+<form role="form"  action="editRest.jsp" method="post">
+<div class="col-lg-6">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-lg" style=margin-top:20 name = "edit_rest" type="submit">Edit Rest</button>
+
+				</span>
+			</div>
+</div>
+</form>
+
+<form role="form"  action="RestChange" method="get">
+<div class="col-lg-6">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-lg" style=margin-top:20 name = "edit_profile" type="submit">edit Profile</button>
+
+				</span>
+			</div>
+			</div>
+</form>
+			
+<form role="form"  action="updateProfile" method="get">
+			
+<div class="col-lg-6">
+			<div class="input-group">
+				<span class="input-group-btn">
+					<button class="btn btn-primary btn-lg" style=margin-top:20 name ="restaurants" type="submit">Restaurants</button>
+			
+				</span>
+			</div>
+</div>
+</form>
 </body>
 </html>
